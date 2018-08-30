@@ -1,0 +1,19 @@
+galaxy_info:
+  author: Alan Jenkins
+  description: (Mostly) revert sourcejedi.google-chrome
+
+  license: GPLv3
+
+  # check_mode
+  min_ansible_version: 2.2
+
+  platforms:
+    - name: Fedora
+      versions:
+        - all
+    - name: CentOS
+      versions:
+        - all
+
+  galaxy_tags:
+    - desktop

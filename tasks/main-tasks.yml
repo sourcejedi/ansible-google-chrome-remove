@@ -1,0 +1,26 @@
+- name: Supported OS - must use dnf (or possibly yum)
+  assert:
+    that: ansible_pkg_mgr in ['dnf', 'yum']
+    msg: This role only supports OS'es based directly on "RedHat".
+         See also `ansible -m setup ... | grep ansible_os_family`.
+
+# This should be redundant, but let's be sure.
+- name: Remove Google Chrome
+  package:
+    name: google-chrome-stable
+    state: absent
+         
+- name: Remove customized Google Chrome repository, if present
+  include: remove-yum-repo.yml
+  vars:
+    repo: local-google-chrome
+
+- name: Remove customized Google Chrome repository, if present
+  include: remove-yum-repo.yml
+  vars:
+    repo: google-chrome
+    
+- name: GOOGLE PACKAGE SIGNING KEY IS NOT REMOVED BY THIS ROLE
+  debug:
+    msg: Instructions on how to remove rpm keys are available here -
+         https://blog.laimbock.com/2014/05/02/how-to-remove-an-imported-gpg-key-from-rpm/comment-page-1/

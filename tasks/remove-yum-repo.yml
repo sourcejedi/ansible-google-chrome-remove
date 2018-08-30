@@ -1,0 +1,68 @@
+# If the repo has already been removed,
+# then attempting to operate on it will fail
+- name: Check for repo
+  stat:
+    path: /etc/yum.repos.d/{{ repo }}.repo
+  register: repo_file
+
+# In other roles I have used a three-step process for accurate results
+# despite using command / shell tasks:
+#
+# 1/3) Query condition
+# 2/3) Run command task conditionally, to provide accurate "changed" status
+# 3/3) The condition must now hold.  This "fixes" ansible check mode.
+#
+# The limitation is that step 3) really just tells the user that check mode
+# has failed (if a change is needed), and that this sequence is one of those
+# that check mode doesn't work for.
+#
+# However it's not good for this role.  If someone removes both repos,
+# I really want to show them the packages that would be removed from
+# *both* repos.
+#
+# Ansible would really benefit if modules were easier to write :(.
+# The alternative solution here, is to fake the "changed" status
+# on a different task.  It works well, apart from the potential
+# for confusion about the fake "changed" status.
+#
+# The "debug" module does not permit faking a changed status.
+# "ping" does though.  (Tested: Ansible 2.4.0).
+
+# 1/3 Query condition
+- name: query  | Are there packages to be removed from this repo?
+  command: dnf repo-pkgs {{ repo }} list installed
+  check_mode: False
+  changed_when: False
+  when: repo_file.stat.exists
+  register: list_installed  # Note stdout is a table; the first line is a header
+  args:
+    warn: no  # not supported by dnf module
+
+# 2/3 Fake "changed" status for check mode.
+- name: report | Yes, there are packages to be removed from this system
+  ping:
+  when: repo_file.stat.exists and list_installed.stdout_lines[1:]
+  changed_when: True
+
+- name: NOTICE | THE FOLLOWING PACKAGES FROM THIS REPO WILL BE REMOVED
+  debug:
+    var: "[ repo, list_installed.stdout_lines[1:] ]"
+  when: repo_file.stat.exists and list_installed.stdout_lines[1:]
+
+# 3/3) Run command task conditionally, to provide accurate "changed" status
+- name: ensure | Google packages are removed
+  command: dnf -y repo-pkgs {{ repo }} remove
+  when: repo_file.stat.exists and list_installed.stdout_lines[1:]
+  args:
+    warn: no  # not supported by dnf module
+
+
+# A little caution before "rm -rf".
+- name: Repo file is a regular file (not a directory)
+  assert:
+    that: repo_file.stat.isreg | d(true)
+    
+- name: Remove repo file
+  file:
+    path: /etc/yum.repos.d/{{ repo }}.repo
+    state: absent
