@@ -9,16 +9,16 @@
   package:
     name: google-chrome-stable
     state: absent
-         
-- name: Remove customized Google Chrome repository, if present
+
+- name: Remove standard Google Chrome repository, if present
   include: remove-yum-repo.yml
   vars:
-    repo: local-google-chrome
+    repo: google-chrome
 
 - name: Remove customized Google Chrome repository, if present
   include: remove-yum-repo.yml
   vars:
-    repo: google-chrome
+    repo: local-google-chrome
     
 - name: GOOGLE PACKAGE SIGNING KEY IS NOT REMOVED BY THIS ROLE
   debug:
