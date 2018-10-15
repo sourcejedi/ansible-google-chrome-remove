@@ -10,17 +10,40 @@
     name: google-chrome-stable
     state: absent
 
+- name: Remove customized Google Chrome repository, if present
+  include: remove-yum-repo.yml
+  vars:
+    repo: local-google-chrome
+
 - name: Remove standard Google Chrome repository, if present
   include: remove-yum-repo.yml
   vars:
     repo: google-chrome
 
-- name: Remove customized Google Chrome repository, if present
-  include: remove-yum-repo.yml
-  vars:
-    repo: local-google-chrome
-    
+- name: Check if fedora-workstation-repositories is installed
+  command: rpm -q fedora-workstation-repositories
+  check_mode: no
+  register: fedora_workstation_repositories
+  failed_when: fedora_workstation_repositories.rc not in [0, 1] or
+               fedora_workstation_repositories.stderr
+  changed_when: False
+
+# This is a bit hairy - it assumes that you hadn't deliberately deleted
+# any of the *other* repo files.  But "dnf" doesn't fully respect deleted
+# conffiles like Debian does, so you're playing with fire anyway.
+#
+# This command will always run and show as changed...
+# because we always removed google-chrome.repo...
+# Ansible roles with an uninstaller are unusual, and I'm happy to accept this,
+# see also the disclaimer in README :).
+# (Note the same issue makes check mode a bit less useful).
+#
+- name: Re-install fedora-workstation-repositories if necessary
+  command: dnf -y reinstall fedora-workstation-repositories
+  args:
+    warn: no  # not supported by dnf module
+  when: fedora_workstation_repositories.rc == 0
+
 - name: GOOGLE PACKAGE SIGNING KEY IS NOT REMOVED BY THIS ROLE
   debug:
-    msg: Instructions on how to remove rpm keys are available here -
-         https://blog.laimbock.com/2014/05/02/how-to-remove-an-imported-gpg-key-from-rpm/comment-page-1/
+    msg: 'Instructions on how to remove rpm keys are available here - https://blog.laimbock.com/2014/05/02/how-to-remove-an-imported-gpg-key-from-rpm/comment-page-1/'
