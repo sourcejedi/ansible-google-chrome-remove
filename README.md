@@ -1,4 +1,4 @@
-# sourcejedi.google-chrome-remove #
+# sourcejedi.google_chrome_remove #
 
 Remove the Google Chrome web browser.
 

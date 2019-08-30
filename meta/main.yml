@@ -1,5 +1,5 @@
 galaxy_info:
-  role_name: google-chrome-remove
+  role_name: google_chrome_remove
   author: Alan Jenkins
   description: (Mostly) revert sourcejedi.google-chrome
 
