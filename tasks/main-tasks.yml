@@ -27,6 +27,9 @@
   failed_when: fedora_workstation_repositories.rc not in [0, 1] or
                fedora_workstation_repositories.stderr
   changed_when: False
+  args:
+    warn: no  # not supported by dnf module
+
 
 # This is a bit hairy - it assumes that you hadn't deliberately deleted
 # any of the *other* repo files.  But "dnf" doesn't fully respect deleted
