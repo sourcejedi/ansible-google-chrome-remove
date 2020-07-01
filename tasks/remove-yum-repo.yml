@@ -5,7 +5,8 @@
     REPO_FILE="/etc/yum.repos.d/{{ repo }}.repo" &&
     test -f "$REPO_FILE" &&
     grep -F "^\s*[{{ repo }}]" "$REPO_FILE"
-  changed_when: false
+  check_mode: no
+  changed_when: False
   register: repo_file
   failed_when: repo_file.rc not in [0, 1] or
                repo_file.stderr != ""
@@ -36,7 +37,7 @@
 # 1/3 Query condition
 - name: query  | Are there packages to be removed from this repo?
   command: dnf repo-pkgs "{{ repo }}" list installed
-  check_mode: False
+  check_mode: no
   changed_when: False
   when: repo_file.rc == 0
   register: list_installed  # Note stdout is a table; the first line is a header
