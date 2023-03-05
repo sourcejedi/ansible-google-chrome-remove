@@ -27,8 +27,6 @@
   failed_when: fedora_workstation_repositories.rc not in [0, 1] or
                fedora_workstation_repositories.stderr
   changed_when: False
-  args:
-    warn: no  # not supported by dnf module
 
 
 # This is a bit hairy - it assumes that you hadn't deliberately deleted
@@ -43,8 +41,6 @@
 #
 - name: Re-install fedora-workstation-repositories if necessary
   command: dnf -y reinstall fedora-workstation-repositories
-  args:
-    warn: no  # not supported by dnf module
   when: fedora_workstation_repositories.rc == 0
 
 - name: GOOGLE PACKAGE SIGNING KEY IS NOT REMOVED BY THIS ROLE
