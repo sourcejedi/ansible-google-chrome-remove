@@ -11,12 +11,12 @@
     state: absent
 
 - name: Remove customized Google Chrome repository, if present
-  include: remove-yum-repo.yml
+  import_tasks: remove-yum-repo.yml
   vars:
     repo: local-google-chrome
 
 - name: Remove standard Google Chrome repository, if present
-  include: remove-yum-repo.yml
+  import_tasks: remove-yum-repo.yml
   vars:
     repo: google-chrome
 
